@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 public class CATest : MonoBehaviour 
 {
-	public genericDelegate<int,int>[] rules = new genericDelegate<int,int>[2]; //= new Dictionary<int,int[2]>(2);
-	Dictionary<int,int[]> ruleMatrix;
-	ruleMatrix<int,int> ruleDecider;
-	int[,] cells = new int[5,5];
+
+	finiteCellularAutomota CA;
 	public int rule1(int cell)//do nothing
 	{
-		return cell;
+		return Random.Range(0,2);
 	}
 	public int rule2(int cell)//invert cell
 	{
@@ -24,11 +22,13 @@ public class CATest : MonoBehaviour
 
 	void Start()
 	{
+		genericDelegate<int,int>[] rules = new genericDelegate<int,int>[2]; //= new Dictionary<int,int[2]>(2);
+		Dictionary<int,int[]> ruleMatrix = new Dictionary<int, int[]>();
+		int[,] cells = new int[5,5];
 		rules[0] = rule1;
 		rules[1] = rule2;
 		ruleMatrix[0] = new int[2]{0,1};
-		ruleMatrix[2] = new int[2]{0,1};
-		ruleDecider = new ruleMatrix<int,int>(ref rules,ref ruleMatrix);
+		ruleMatrix[1] = new int[2]{0,1};
 		for(int x =0; x < 5; x++)
 		{
 			for(int y =0; y < 5; y++)
@@ -37,15 +37,33 @@ public class CATest : MonoBehaviour
 			}
 
 		}
+		CA = new finiteCellularAutomota(cells,rules,ruleMatrix);
+		StartCoroutine(step());
 	}
 
-	void FixedUpdate()
+	IEnumerator step()
 	{
-		for(int x =0; x < 5; x++)
+		while(Application.isPlaying)
 		{
-			for(int y =0; y < 5; y++)
+			CA.pass(false);
+			yield return new WaitForSeconds(1f);
+		}
+	}
+	void OnDrawGizmos()
+	{
+		if(Application.isPlaying)
+		{
+			for(int x =0; x < 5; x++)
 			{
-				//cells[x,y] = ruleMatrix<int,int>().getRule();
+				for(int y =0; y < 5; y++)
+				{
+					Gizmos.color = Color.white;
+					if(CA.cells[x,y] == 0)
+					{
+						Gizmos.color = Color.black;
+					}
+					Gizmos.DrawCube(new Vector3(x,y,0),Vector3.one);
+				}
 			}
 		}
 	}
