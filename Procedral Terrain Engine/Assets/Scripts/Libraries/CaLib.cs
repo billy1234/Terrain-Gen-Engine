@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-namespace cellularAutomataLib
+
+ namespace cellularAutomataLib
 {
+
 	public delegate T1 genericDelegate<T1,T2>(T2 item);
 
 	public static class neighborAcces
@@ -19,16 +21,18 @@ namespace cellularAutomataLib
 		Vector2.down + Vector2.left, Vector2.down + Vector2.left
 		};
 
-		static public  T[]  getNeigborsNESW<T>(ref T[,] array, Vector2 cell) //no flattened array implemenation as of now
+		//pointers are needed for this aporach to alow the retured values to be editable
+
+		static public T[]  getNeigborsNESW<T>(ref T[,] array, Vector2 cell) //no flattened array implemenation as of now
 		{
 			return getNeigbors(ref array,cell,new direction[4]{direction.UP,direction.RIGHT,direction.DOWN,direction.LEFT});
 		}
-		static public  T[]  getNeigborsNESWDiag<T>(ref T[,] array, Vector2 cell) //no flattened array implemenation as of now
+		static public T[]  getNeigborsNESWDiag<T>(ref T[,] array, Vector2 cell) //no flattened array implemenation as of now
 		{
 			return getNeigbors(ref array,cell,new direction[8]{direction.UP,direction.UP_RIGHT,direction.RIGHT,direction.DOWN_RIGHT,direction.DOWN,direction.DOWN_LEFT,direction.LEFT,direction.UP_LEFT});
 		}
 
-		static public  T[]  getNeigbors<T>(ref T[,] array, Vector2 cell,direction[] sidesToCheck) //no flattened array implemenation as of now
+		static public T[]  getNeigbors<T>(ref T[,] array, Vector2 cell,direction[] sidesToCheck) //no flattened array implemenation as of now
 		{
 			T[] cells = new T[sidesToCheck.Length];
 			bool[] isNull = new bool[sidesToCheck.Length];
@@ -77,7 +81,7 @@ namespace cellularAutomataLib
 		{
 			//public  int[,] ruleMatrixArray;//indexes
 
-			public ruleMatrix(genericDelegate<T1,T2>[] rules,Dictionary<int,int[]> ruleDictionary)
+			public ruleMatrix(ref genericDelegate<T1,T2>[] rules,ref Dictionary<int,int[]> ruleDictionary)
 			{
 				this.rules = rules;
 				if(ruleDictionary.Count != rules.Length)
