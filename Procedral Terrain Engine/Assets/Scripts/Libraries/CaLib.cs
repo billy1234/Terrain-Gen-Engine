@@ -7,19 +7,42 @@ using System.Collections.Generic;
 
 	public delegate T1 genericDelegate<T1,T2>(T2 item);
 
-	public class finiteCellularAutomota
+	public abstract class cellularAutomotaBase<T>
 	{
-		public finiteCellularAutomota(int[,] cells, genericDelegate<int,int>[] rules, Dictionary<int,int[]> ruleDictionary)
+		public T[,] cells;
+		public genericDelegate<int,int>[] rules;
+		public Dictionary<int,int[]> ruleDictionary;
+
+		public cellularAutomotaBase(T[,] cells, genericDelegate<int,int>[] rules, Dictionary<int,int[]> ruleDictionary)
 		{
 			this.cells = cells;
 			this.rules = rules;
 			this.ruleDictionary = ruleDictionary;
 		}
 
-		public int[,] cells;
-		public genericDelegate<int,int>[] rules;
-		public Dictionary<int,int[]> ruleDictionary;
-		public void pass(bool NESW) //if not nesw will asume neswdiag
+		protected abstract void iterateCell(Vector2[] neighbors,int x,int y);
+
+		public void passNESW()
+		{
+			pass(true);
+		}
+		public void passNESWD()
+		{
+			pass(false);
+		}
+		public void passCustom(Vector2[] cellsToCheck)//even more passes can be added as itterate cell is sperate
+		{
+			for(int y =0; y < cells.GetLength(1); y++)
+			{
+				for(int x =0; x < cells.GetLength(0); x++)
+				{
+					iterateCell(cellsToCheck,x,y);
+				}
+				
+			}
+		}
+		
+		private void pass(bool NESW) //if not nesw will asume neswdiag, this is a utility function for pass nesw/neswd
 		{
 			Vector2[] neighbors = new Vector2[8];
 			for(int y =0; y < cells.GetLength(1); y++)
@@ -30,21 +53,35 @@ using System.Collections.Generic;
 					{
 						neighbors = neighborAcces.getNeigborsNESW(ref cells,new Vector2(x,y));
 					}
-					else
+					else if(NESW = false)
 					{
 						neighbors = neighborAcces.getNeigborsNESWDiag(ref cells,new Vector2(x,y));
 					}
-
-					foreach(Vector2 cellCoord in neighbors)
-					{
-						genericDelegate<int,int> rule;
-						rule = ruleMatrix<int,int>.getRule(cells[(int)cellCoord.x,(int)cellCoord.y],cells[x,y],ref rules,ref ruleDictionary);
-						cells[(int)cellCoord.x,(int)cellCoord.y] = rule(cells[x,y]);
-					}
-
+					iterateCell(neighbors,x,y);
 				}
+				
 			}
 		}
+	}
+
+	public class cellularAutomotaInt : cellularAutomotaBase<int>
+	{
+
+		public cellularAutomotaInt(int[,] cells, genericDelegate<int,int>[] rules, Dictionary<int,int[]> ruleDictionary):base(cells,rules,ruleDictionary)
+		{
+
+		}
+
+		protected override void iterateCell(Vector2[] neighbors,int x,int y) //ints implemenation sipliy plugs the return back into the cell
+		{
+			foreach(Vector2 cellCoord in neighbors)
+			{
+				genericDelegate<int,int> rule;
+				rule = ruleMatrix<int,int>.getRule(cells[(int)cellCoord.x,(int)cellCoord.y],cells[x,y],ref rules,ref ruleDictionary);
+				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(cells[x,y]);
+			}
+		}
+
 	}
 
 	public static class neighborAcces

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class CATest : MonoBehaviour 
 {
 
-	finiteCellularAutomota CA;
+	cellularAutomotaInt CA;
 	public int rule1(int cell)//do nothing
 	{
 		return Random.Range(0,2);
@@ -37,7 +37,7 @@ public class CATest : MonoBehaviour
 			}
 
 		}
-		CA = new finiteCellularAutomota(cells,rules,ruleMatrix);
+		CA = new cellularAutomotaInt(cells,rules,ruleMatrix);
 		StartCoroutine(step());
 	}
 
@@ -45,7 +45,7 @@ public class CATest : MonoBehaviour
 	{
 		while(Application.isPlaying)
 		{
-			CA.pass(false);
+			CA.passNESW();
 			yield return new WaitForSeconds(1f);
 		}
 	}
