@@ -5,22 +5,43 @@ using System.Collections.Generic;
  namespace cellularAutomataLib
 {
 
-	public delegate T1 genericDelegate<T1,T2>(T2 item);
+	public delegate T cellRule<T>(T me,T cellToEvaluate);
 
-	public abstract class cellularAutomotaBase<T>
+	public abstract class cellularAutomotaBase<TTile,TQuery>
 	{
-		public T[,] cells;
-		public genericDelegate<int,int>[] rules;
-		public Dictionary<int,int[]> ruleDictionary;
+		public TTile[,] cells;
+		public cellRule<TTile>[] rules;
+		public Dictionary<TQuery,int> ruleDictionary;
 
-		public cellularAutomotaBase(T[,] cells, genericDelegate<int,int>[] rules, Dictionary<int,int[]> ruleDictionary)
+		public cellularAutomotaBase(TTile[,] cells, cellRule<TTile>[] rules, Dictionary<TQuery,int> ruleDictionary)
 		{
 			this.cells = cells;
 			this.rules = rules;
 			this.ruleDictionary = ruleDictionary;
 		}
 
-		protected abstract void iterateCell(Vector2[] neighbors,int x,int y);
+		//protected abstract void iterateCell(Vector2[] neighbors,int x,int y);
+
+		protected void iterateCell(Vector2[] neighbors,int x,int y) //ints implemenation sipliy plugs the return back into the cell
+		{
+			cellRule<TTile> rule;
+			
+			foreach(Vector2 cellCoord in neighbors)
+			{
+				rule = ruleMatrix<TTile,TQuery>.getRule(
+														getRuleQueryFromTile(cells[x,y])
+														,ref rules,ref ruleDictionary);
+
+				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(cells[x,y],cells[(int)cellCoord.x,(int)cellCoord.y]);
+			}
+		}
+
+		/// <summary>
+		/// asks the tile for the data so the dictionary can be quereyed, so the whole object does not have to be passed, impliment based on rule structure
+		/// </summary>
+		/// <returns>a queryable object.</returns>
+		/// <param name="tile">Tile.</param>
+		protected abstract TQuery getRuleQueryFromTile(TTile tile);
 
 		public void passNESW()
 		{
@@ -63,24 +84,32 @@ using System.Collections.Generic;
 			}
 		}
 	}
+	
 
-	public class cellularAutomotaInt : cellularAutomotaBase<int>
+	public class cellularAutomotaInt : cellularAutomotaBase<int,int>
 	{
 
-		public cellularAutomotaInt(int[,] cells, genericDelegate<int,int>[] rules, Dictionary<int,int[]> ruleDictionary):base(cells,rules,ruleDictionary)
+		public cellularAutomotaInt(int[,] cells, cellRule<int>[] rules, Dictionary<int,int> ruleDictionary):base(cells,rules,ruleDictionary)
 		{
 
 		}
 
+		protected override int getRuleQueryFromTile (int tile)
+		{
+			return tile;
+		}
+		/*
 		protected override void iterateCell(Vector2[] neighbors,int x,int y) //ints implemenation sipliy plugs the return back into the cell
 		{
+			genericDelegate<int> rule;
+
 			foreach(Vector2 cellCoord in neighbors)
 			{
-				genericDelegate<int,int> rule;
-				rule = ruleMatrix<int,int>.getRule(cells[(int)cellCoord.x,(int)cellCoord.y],cells[x,y],ref rules,ref ruleDictionary);
+				rule = ruleMatrix<int,int>.getRule(cells[x,y],cells[(int)cellCoord.x,(int)cellCoord.y],ref rules,ref ruleDictionary);
 				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(cells[x,y]);
 			}
 		}
+		*/
 
 	}
 
@@ -152,24 +181,19 @@ using System.Collections.Generic;
 			return finalCells;
 		}
 	}
-	//t1 is output t2 is input 
-	public static class ruleMatrix<T1,T2>
+	//t1 is output t2 query tipe(what will be fed into this class to find the apropriate rule)
+	public static class ruleMatrix<TCell,TQuery>
 	{
-		public static int getRuleNumber(int state,int neighbor,ref genericDelegate<T1,T2>[] rules,ref Dictionary<int,int[]> ruleDictionary)
+		private static int getRuleNumber(TQuery state,ref cellRule<TCell>[] rules,ref Dictionary<TQuery,int> ruleDictionary)
 		{
 
-			if(state < 0 || neighbor < 0 || state > ruleDictionary.Count ||neighbor > ruleDictionary.Count)
-			{
-				Debug.LogError(string.Format("Invalid state for either cell: {0} or {1} in rule matrix",state,neighbor));
-			}
-
-			return(ruleDictionary[state][neighbor]);
+			return(ruleDictionary[state]);
 		}
 
-		public static genericDelegate<T1,T2> getRule(int state,int neighbor,ref genericDelegate<T1,T2>[] rules,ref Dictionary<int,int[]> ruleDictionary)
+		public static cellRule<TCell> getRule(TQuery state,ref cellRule<TCell>[] rules,ref Dictionary<TQuery,int> ruleDictionary)
 		{
 			//Debug.Log(state+"  ,  "+neighbor);
-			return rules[getRuleNumber(state,neighbor,ref rules,ref ruleDictionary)];
+			return rules[getRuleNumber(state,ref rules,ref ruleDictionary)];
 		}
 	}	
 }
