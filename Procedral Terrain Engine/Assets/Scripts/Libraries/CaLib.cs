@@ -5,7 +5,7 @@ using System.Collections.Generic;
  namespace cellularAutomataLib
 {
 
-	public delegate T cellRule<T>(T me,T cellToEvaluate);
+	public delegate T cellRule<T>(ref T me,T cellToEvaluate);
 
 	public abstract class cellularAutomotaBase<TTile,TQuery>
 	{
@@ -32,8 +32,10 @@ using System.Collections.Generic;
 														getRuleQueryFromTile(cells[x,y])
 														,ref rules,ref ruleDictionary);
 
-				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(cells[x,y],cells[(int)cellCoord.x,(int)cellCoord.y]);
+				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(ref cells[x,y],cells[(int)cellCoord.x,(int)cellCoord.y]);
+			
 			}
+			//Debug.Log(getRuleQueryFromTile(cells[x,y]));
 		}
 
 		/// <summary>
@@ -74,7 +76,7 @@ using System.Collections.Generic;
 					{
 						neighbors = neighborAcces.getNeigborsNESW(ref cells,new Vector2(x,y));
 					}
-					else if(NESW = false)
+					else if(NESW == false)
 					{
 						neighbors = neighborAcces.getNeigborsNESWDiag(ref cells,new Vector2(x,y));
 					}
