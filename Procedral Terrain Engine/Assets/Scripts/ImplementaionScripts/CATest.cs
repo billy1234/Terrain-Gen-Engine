@@ -37,19 +37,19 @@ public class CATest : MonoBehaviour
 	}
 	#endregion
 
-	public tile EmptyRules(ref tile me,tile otherTile)
+	public void EmptyRules(ref tile me,ref tile[] neighbours)
 	{
-		return otherTile;//do nothing
+		return;//do nothing
 	}
-	public tile DomesticRules(ref tile me,tile otherTile)
+	public void DomesticRules(ref tile me,ref tile[] neighbours)
 	{
+		/*
 		if(otherTile.zone == ZONE.EMPTY)
 		{
 			if(Random.Range(0,10) == 0)//1 in 10 chance
 			{
 				otherTile.zone = ZONE.DOMESTIC;
 				otherTile.strength = 0.1f;
-				//print("changed tile");
 			}
 		}
 		else if(otherTile.zone == ZONE.DOMESTIC)
@@ -59,10 +59,11 @@ public class CATest : MonoBehaviour
 			otherTile.strength = Mathf.Clamp(otherTile.strength,0f,1f);
 
 		}
-		return otherTile;
+		*/
 	}
-	public tile IndustrialRules(ref tile me,tile otherTile)
+	public void IndustrialRules(ref tile me,ref tile[] otherTile)
 	{
+		/*
 		if(otherTile.zone == ZONE.EMPTY)
 		{
 			if(Random.Range(0,10) == 0)//1 in 10 chance
@@ -70,10 +71,11 @@ public class CATest : MonoBehaviour
 				otherTile.zone = ZONE.INDUSTRIAL;
 			}
 		}
-		return otherTile;//Random.Range(0,2);
+		*/
 	}
-	public tile ComercialRules(ref tile me,tile otherTile)
+	public void ComercialRules(ref tile me,ref tile[] neighbours)
 	{
+		/*
 		if(otherTile.zone == ZONE.EMPTY || otherTile.zone == ZONE.INDUSTRIAL)
 		{
 			me.strength *= 0.9f;
@@ -85,7 +87,7 @@ public class CATest : MonoBehaviour
 			me.strength = 0.25f * me.favorableNeighborCount;
 			me.strength = Mathf.Clamp(me.strength,0f,1f);
 		}
-		return otherTile;//Random.Range(0,2);
+		*/
 	}
 
 	void Start()

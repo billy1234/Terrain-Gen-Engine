@@ -5,7 +5,7 @@ using System.Collections.Generic;
  namespace cellularAutomataLib
 {
 
-	public delegate T cellRule<T>(ref T me,T cellToEvaluate);
+	public delegate void cellRule<T>(ref T me, ref T[] myNeighbours);
 
 	public abstract class cellularAutomotaBase<TTile,TQuery>
 	{
@@ -22,19 +22,22 @@ using System.Collections.Generic;
 
 		//protected abstract void iterateCell(Vector2[] neighbors,int x,int y);
 
-		protected void iterateCell(Vector2[] neighbors,int x,int y) //ints implemenation sipliy plugs the return back into the cell
+		protected void iterateCell(Vector2[] neighbourIndex,int x,int y) //ints implemenation sipliy plugs the return back into the cell
 		{
 			cellRule<TTile> rule;
-			
-			foreach(Vector2 cellCoord in neighbors)
+			TTile[] neighbourCells = new TTile[neighbourIndex.Length];
+			rule = ruleMatrix<TTile,TQuery>.getRule(
+				getRuleQueryFromTile(cells[x,y])
+				,ref rules,ref ruleDictionary);
+			for(int i=0; i < neighbourIndex.Length; i++)
 			{
-				rule = ruleMatrix<TTile,TQuery>.getRule(
-														getRuleQueryFromTile(cells[x,y])
-														,ref rules,ref ruleDictionary);
 
-				cells[(int)cellCoord.x,(int)cellCoord.y] = rule(ref cells[x,y],cells[(int)cellCoord.x,(int)cellCoord.y]);
+
+				neighbourCells[i] = cells[(int)neighbourIndex[i].x,(int)neighbourIndex[i].y];
 			
 			}
+			rule(ref cells[x,y],ref neighbourCells);
+
 			//Debug.Log(getRuleQueryFromTile(cells[x,y]));
 		}
 
