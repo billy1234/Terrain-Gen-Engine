@@ -27,12 +27,10 @@ using gridLib;
 			cellRule<TTile> rule;
 			TTile[] neighbourCells = new TTile[neighbourIndex.Length];
 			rule = ruleMatrix<TTile,TQuery>.getRule(
-				getRuleQueryFromTile(cells[x,y])
-				,ref rules,ref ruleDictionary);
+											getRuleQueryFromTile(cells[x,y])
+											,ref rules,ref ruleDictionary);
 			for(int i=0; i < neighbourIndex.Length; i++)
 			{
-
-
 				neighbourCells[i] = cells[(int)neighbourIndex[i].x,(int)neighbourIndex[i].y];
 			
 			}
@@ -124,13 +122,11 @@ using gridLib;
 	{
 		private static int getRuleNumber(TQuery state,ref cellRule<TCell>[] rules,ref Dictionary<TQuery,int> ruleDictionary)
 		{
-
 			return(ruleDictionary[state]);
 		}
 
 		public static cellRule<TCell> getRule(TQuery state,ref cellRule<TCell>[] rules,ref Dictionary<TQuery,int> ruleDictionary)
 		{
-			//Debug.Log(state+"  ,  "+neighbor);
 			return rules[getRuleNumber(state,ref rules,ref ruleDictionary)];
 		}
 	}	

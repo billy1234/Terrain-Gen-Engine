@@ -8,7 +8,13 @@ public class CATest : MonoBehaviour
 	public int size;
 	public Texture displayTexture;
 	cellularAutomotaTile CA;
-
+	const int maxNeighbours =4;
+	[Range(0,1)]
+	public float domesticPlaceRate;
+	[Range(0,1)]
+	public float comercialPlaceRate;
+	[Range(0,1)]
+	public float industrialPlaceRate;
 	#region ca lib utilities
 	public enum ZONE: int
 	{
@@ -37,48 +43,93 @@ public class CATest : MonoBehaviour
 	}
 	#endregion
 
+	#region editorScripting
+	public void OnValidate()
+	{
+		float maxPer =0;
+		maxPer = domesticPlaceRate;
+		if(maxPer + comercialPlaceRate > 1)
+		{
+			comercialPlaceRate = 1 - maxPer;
+		}
+		maxPer += comercialPlaceRate;
+		if(maxPer + industrialPlaceRate > 1)
+		{
+			industrialPlaceRate = 1- maxPer;
+		}
+	}
+	#endregion
+
+
 	public void EmptyRules(ref tile me,ref tile[] neighbours)
 	{
 		//do nothing
 	}
 	public void DomesticRules(ref tile me,ref tile[] neighbours)
 	{
-		int domNeighbours =0;
+		int goodNeighbours =0;
+		int indNeighbours =0;
 		for(int i=0; i < neighbours.Length; i++)
 		{
-			if(neighbours[i].zone ==ZONE.DOMESTIC)
+			if(neighbours[i].zone ==ZONE.DOMESTIC || neighbours[i].zone == ZONE.COMERCIAL)
 			{
-				domNeighbours ++;
+				goodNeighbours ++;
+			}
+			else if(neighbours[i].zone == ZONE.INDUSTRIAL)
+			{
+				indNeighbours ++;
 			}
 		}
 
 		for(int i=0; i < neighbours.Length; i++)
 		{
-			if(domNeighbours < 4 && neighbours[i].zone == ZONE.EMPTY &&Random.Range(0,25-domNeighbours)==0)
+			if( neighbours[i].zone == ZONE.EMPTY&&goodNeighbours < maxNeighbours&&Random.Range(0,25-goodNeighbours)==0)
 			{
 				neighbours[i].zone = ZONE.DOMESTIC;
 				neighbours[i].strength = 0.1f;
 			}
 		}
 
-		if(domNeighbours > 1) me.strength = domNeighbours/4f;
+		 me.strength = Mathf.Clamp((goodNeighbours - indNeighbours)/maxNeighbours,0f,1f);
 	}
-	public void IndustrialRules(ref tile me,ref tile[] otherTile)
+	public void IndustrialRules(ref tile me,ref tile[] neighbours)
 	{
-
+		int emptyCount =0;
+		int badNeighbourCount =0;
+		for(int i=0; i < neighbours.Length; i++)
+		{
+			if(neighbours[i].zone == ZONE.EMPTY)
+			{
+				emptyCount++;
+			}
+			else if(neighbours[i].zone == ZONE.COMERCIAL || neighbours[i].zone == ZONE.DOMESTIC)
+			{
+				badNeighbourCount ++;
+			}
+		}
+		me.strength = 1-(badNeighbourCount/maxNeighbours);
+		for(int i=0; i < neighbours.Length; i++)
+		{
+			if(neighbours[i].zone == ZONE.EMPTY && (Random.Range(0f,me.strength) * emptyCount) > maxNeighbours * 0.8f)
+			{
+				neighbours[i].zone = ZONE.INDUSTRIAL;
+			}
+		}
 	}
 	public void ComercialRules(ref tile me,ref tile[] neighbours)
 	{
 		int comNeighbours =0;
+		int indNeighbours =0;
 		for(int i=0; i < neighbours.Length; i++)
 		{
 			if(neighbours[i].zone == ZONE.DOMESTIC ||neighbours[i].zone == ZONE.COMERCIAL)comNeighbours++;
+			if(neighbours[i].zone == ZONE.INDUSTRIAL)indNeighbours++;
 		}
 		for(int i=0; i < neighbours.Length; i++)
 		{
 			if(neighbours[i].zone ==ZONE.EMPTY&&Random.Range(0,3-comNeighbours)==2)neighbours[i].zone = ZONE.COMERCIAL;
 		}
-		me.strength = comNeighbours/4f;
+		me.strength = (comNeighbours - indNeighbours)/ maxNeighbours;
 	}
 
 	void Start()
@@ -88,7 +139,7 @@ public class CATest : MonoBehaviour
 		{
 			EmptyRules,DomesticRules,ComercialRules,IndustrialRules
 		};
-		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL}};
+		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL}};
 		tile[,] cells = new tile[size,size];
 		displayTexture = new Texture2D(size,size);
 		for(int x =0; x < size; x++)
@@ -96,9 +147,22 @@ public class CATest : MonoBehaviour
 			for(int y =0; y < size; y++)
 			{
 				cells[x,y] = new tile();
-				ZONE cellType = (ZONE)Random.Range(-5,4);
-				if((int)cellType < 0)
-				{				
+				float chance = Random.Range(0f,1f);
+				ZONE cellType;
+				if(chance < domesticPlaceRate)
+				{
+					cellType = ZONE.DOMESTIC;
+				}
+				else if(chance < domesticPlaceRate + comercialPlaceRate)
+				{
+					cellType = ZONE.COMERCIAL;
+				}
+				else if(chance < domesticPlaceRate + comercialPlaceRate + industrialPlaceRate)
+				{
+					cellType = ZONE.INDUSTRIAL;
+				}
+				else
+				{
 					cellType = ZONE.EMPTY;
 				}
 
@@ -137,7 +201,7 @@ public class CATest : MonoBehaviour
 					}
 					else if(CA.cells[x,y].zone == ZONE.INDUSTRIAL)
 					{
-						c= Color.blue;
+						c= Color.green;
 					}
 
 					pixels[x + y * size] = c * CA.cells[x,y].strength;
