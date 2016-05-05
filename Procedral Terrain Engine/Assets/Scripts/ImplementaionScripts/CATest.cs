@@ -39,55 +39,46 @@ public class CATest : MonoBehaviour
 
 	public void EmptyRules(ref tile me,ref tile[] neighbours)
 	{
-		return;//do nothing
+		//do nothing
 	}
 	public void DomesticRules(ref tile me,ref tile[] neighbours)
 	{
-		/*
-		if(otherTile.zone == ZONE.EMPTY)
+		int domNeighbours =0;
+		for(int i=0; i < neighbours.Length; i++)
 		{
-			if(Random.Range(0,10) == 0)//1 in 10 chance
+			if(neighbours[i].zone ==ZONE.DOMESTIC)
 			{
-				otherTile.zone = ZONE.DOMESTIC;
-				otherTile.strength = 0.1f;
+				domNeighbours ++;
 			}
 		}
-		else if(otherTile.zone == ZONE.DOMESTIC)
+
+		for(int i=0; i < neighbours.Length; i++)
 		{
-
-			otherTile.strength *= me.strength;
-			otherTile.strength = Mathf.Clamp(otherTile.strength,0f,1f);
-
+			if(domNeighbours < 4 && neighbours[i].zone == ZONE.EMPTY &&Random.Range(0,25-domNeighbours)==0)
+			{
+				neighbours[i].zone = ZONE.DOMESTIC;
+				neighbours[i].strength = 0.1f;
+			}
 		}
-		*/
+
+		if(domNeighbours > 1) me.strength = domNeighbours/4f;
 	}
 	public void IndustrialRules(ref tile me,ref tile[] otherTile)
 	{
-		/*
-		if(otherTile.zone == ZONE.EMPTY)
-		{
-			if(Random.Range(0,10) == 0)//1 in 10 chance
-			{
-				otherTile.zone = ZONE.INDUSTRIAL;
-			}
-		}
-		*/
+
 	}
 	public void ComercialRules(ref tile me,ref tile[] neighbours)
 	{
-		/*
-		if(otherTile.zone == ZONE.EMPTY || otherTile.zone == ZONE.INDUSTRIAL)
+		int comNeighbours =0;
+		for(int i=0; i < neighbours.Length; i++)
 		{
-			me.strength *= 0.9f;
+			if(neighbours[i].zone == ZONE.DOMESTIC ||neighbours[i].zone == ZONE.COMERCIAL)comNeighbours++;
 		}
-		if(otherTile.zone == ZONE.DOMESTIC)
+		for(int i=0; i < neighbours.Length; i++)
 		{
-
-			me.favorableNeighborCount ++;
-			me.strength = 0.25f * me.favorableNeighborCount;
-			me.strength = Mathf.Clamp(me.strength,0f,1f);
+			if(neighbours[i].zone ==ZONE.EMPTY&&Random.Range(0,3-comNeighbours)==2)neighbours[i].zone = ZONE.COMERCIAL;
 		}
-		*/
+		me.strength = comNeighbours/4f;
 	}
 
 	void Start()
@@ -113,7 +104,6 @@ public class CATest : MonoBehaviour
 
 				cells[x,y].zone = cellType;
 				cells[x,y].strength = 0.1f;
-				//int state
 			}
 
 		}
