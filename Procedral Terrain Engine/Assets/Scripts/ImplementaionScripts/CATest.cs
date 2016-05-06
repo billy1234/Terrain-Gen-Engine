@@ -2,7 +2,7 @@
 using System.Collections;
 using cellularAutomataLib;
 using System.Collections.Generic;
-
+using NoiseExtention;
 public class CATest : MonoBehaviour 
 {
 	public int size;
@@ -15,6 +15,15 @@ public class CATest : MonoBehaviour
 	public float comercialPlaceRate;
 	[Range(0,1)]
 	public float industrialPlaceRate;
+
+	public int seed =1;
+	public float scale =0.4f;
+	public int octaves =4;
+	public float persistance =0.5f;
+	public float lacunarity =1.5f;
+	public float watterCutoff =0.15f;
+	public float softCutoffRadius;
+	public float hardCutoffRadius;
 	#region ca lib utilities
 	public enum ZONE: int
 	{
@@ -60,7 +69,7 @@ public class CATest : MonoBehaviour
 	}
 	#endregion
 
-
+	#region ca
 	public void EmptyRules(ref tile me,ref tile[] neighbours)
 	{
 		//do nothing
@@ -131,9 +140,16 @@ public class CATest : MonoBehaviour
 		}
 		me.strength = (comNeighbours - indNeighbours)/ maxNeighbours;
 	}
+	#endregion
 
 	void Start()
 	{
+		float[,] heightmap = perlinNoiseLayeredSimple.perlinNoise(size,size,seed,scale,octaves,persistance,lacunarity,Vector2.one);
+		heightMapUtility.heightMapSmoothing.clampHeightMapAt(ref heightmap,watterCutoff);
+		heightMapUtility.heightMapSmoothing.clampEdgesCircular(ref heightmap,softCutoffRadius,hardCutoffRadius,watterCutoff);
+
+		GetComponent<MeshFilter>().mesh = heightMapUtility.heightMapToMesh.meshFromHeightMap(heightmap);
+		#region caStart
 		cellRule<tile>[] rules; //= new cellRule<tile>[2]; //= new Dictionary<int,int[2]>(2);
 		rules = new cellRule<tile>[4]
 		{
@@ -173,6 +189,7 @@ public class CATest : MonoBehaviour
 		}
 		CA = new cellularAutomotaTile(cells,rules,ruleMatrix);
 		StartCoroutine(step());
+		#endregion
 	}
 
 	IEnumerator step()
@@ -212,36 +229,5 @@ public class CATest : MonoBehaviour
 			gameObject.GetComponent<Renderer>().material.mainTexture = displayTexture;
 		}
 	}
-	/*
-	void OnDrawGizmos()
-	{
-		if(Application.isPlaying)
-		{
-			for(int x =0; x < 5; x++)
-			{
-				for(int y =0; y < 5; y++)
-				{
-					if((int)CA.cells[x,y].zone == 0)
-					{
-						Gizmos.color = Color.white;
-					}
-					if((int)CA.cells[x,y].zone == 1)
-					{
-						Gizmos.color = Color.blue;
-					}
-					else if((int)CA.cells[x,y].zone == 2)
-					{
-						Gizmos.color = Color.yellow;
-					}
-					else if((int)CA.cells[x,y].zone == 3)
-					{
-						Gizmos.color = Color.black;
-					}
-					Gizmos.DrawCube(new Vector3(x,y,0),Vector3.one);
-				}
-			}
-		}
-	}
-	*/
 
 }
