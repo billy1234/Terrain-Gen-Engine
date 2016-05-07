@@ -27,13 +27,13 @@ public class CATest : MonoBehaviour
 	#region ca lib utilities
 	public enum ZONE: int
 	{
-		EMPTY =0, DOMESTIC = 1,COMERCIAL =2,INDUSTRIAL=3
+		EMPTY =0, DOMESTIC = 1,COMERCIAL =2,INDUSTRIAL=3, OCEAN =4
 	}
 	public class tile
 	{
 		public ZONE zone = 0;
 		public float strength =0;
-		public int favorableNeighborCount;
+		public float landHeight;
 	}
 
 	public class cellularAutomotaTile:cellularAutomotaBase<tile,ZONE>
@@ -72,10 +72,12 @@ public class CATest : MonoBehaviour
 	#region ca
 	public void EmptyRules(ref tile me,ref tile[] neighbours)
 	{
+
 		//do nothing
 	}
 	public void DomesticRules(ref tile me,ref tile[] neighbours)
 	{
+
 		int goodNeighbours =0;
 		int indNeighbours =0;
 		for(int i=0; i < neighbours.Length; i++)
@@ -151,11 +153,11 @@ public class CATest : MonoBehaviour
 		GetComponent<MeshFilter>().mesh = heightMapUtility.heightMapToMesh.meshFromHeightMap(heightmap);
 		#region caStart
 		cellRule<tile>[] rules; //= new cellRule<tile>[2]; //= new Dictionary<int,int[2]>(2);
-		rules = new cellRule<tile>[4]
+		rules = new cellRule<tile>[5]
 		{
-			EmptyRules,DomesticRules,ComercialRules,IndustrialRules
+			EmptyRules,DomesticRules,ComercialRules,IndustrialRules,EmptyRules
 		};
-		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL}};
+		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL},{ZONE.OCEAN,(int)ZONE.OCEAN}};
 		tile[,] cells = new tile[size,size];
 		displayTexture = new Texture2D(size,size);
 		for(int x =0; x < size; x++)
@@ -163,27 +165,36 @@ public class CATest : MonoBehaviour
 			for(int y =0; y < size; y++)
 			{
 				cells[x,y] = new tile();
-				float chance = Random.Range(0f,1f);
-				ZONE cellType;
-				if(chance < domesticPlaceRate)
+
+				if(heightmap[x,y] <= watterCutoff)
 				{
-					cellType = ZONE.DOMESTIC;
-				}
-				else if(chance < domesticPlaceRate + comercialPlaceRate)
-				{
-					cellType = ZONE.COMERCIAL;
-				}
-				else if(chance < domesticPlaceRate + comercialPlaceRate + industrialPlaceRate)
-				{
-					cellType = ZONE.INDUSTRIAL;
+					cells[x,y].zone = ZONE.OCEAN;
+					cells[x,y].strength = 0;
 				}
 				else
 				{
-					cellType = ZONE.EMPTY;
-				}
+					float chance = Random.Range(0f,1f);
+					ZONE cellType;
+					if(chance < domesticPlaceRate)
+					{
+						cellType = ZONE.DOMESTIC;
+					}
+					else if(chance < domesticPlaceRate + comercialPlaceRate)
+					{
+						cellType = ZONE.COMERCIAL;
+					}
+					else if(chance < domesticPlaceRate + comercialPlaceRate + industrialPlaceRate)
+					{
+						cellType = ZONE.INDUSTRIAL;
+					}
+					else
+					{
+						cellType = ZONE.EMPTY;
+					}
 
-				cells[x,y].zone = cellType;
-				cells[x,y].strength = 0.1f;
+					cells[x,y].zone = cellType;
+					cells[x,y].strength = 0.1f;
+				}
 			}
 
 		}
@@ -220,8 +231,14 @@ public class CATest : MonoBehaviour
 					{
 						c= Color.green;
 					}
-
-					pixels[x + y * size] = c * CA.cells[x,y].strength;
+					if(CA.cells[x,y].zone != ZONE.OCEAN)
+					{
+						pixels[x + y * size] = c * CA.cells[x,y].strength;
+					}
+					else
+					{
+						pixels[x + y * size] = Color.blue * Random.Range(0f,1f);
+					}
 
 				}
 			}
