@@ -24,6 +24,7 @@ public class CATest : MonoBehaviour
 	public float watterCutoff =0.15f;
 	public float softCutoffRadius;
 	public float hardCutoffRadius;
+	public Vector3 meshScaleVector;
 	#region ca lib utilities
 	public enum ZONE: int
 	{
@@ -34,6 +35,8 @@ public class CATest : MonoBehaviour
 		public ZONE zone = 0;
 		public float strength =0;
 		public float landHeight;
+		public Vector3 normal;
+
 	}
 
 	public class cellularAutomotaTile:cellularAutomotaBase<tile,ZONE>
@@ -149,8 +152,8 @@ public class CATest : MonoBehaviour
 		float[,] heightmap = perlinNoiseLayeredSimple.perlinNoise(size,size,seed,scale,octaves,persistance,lacunarity,Vector2.one);
 		heightMapUtility.heightMapSmoothing.clampHeightMapAt(ref heightmap,watterCutoff);
 		heightMapUtility.heightMapSmoothing.clampEdgesCircular(ref heightmap,softCutoffRadius,hardCutoffRadius,watterCutoff);
-
-		GetComponent<MeshFilter>().mesh = heightMapUtility.heightMapToMesh.meshFromHeightMap(heightmap);
+		Mesh myMesh = heightMapUtility.heightMapToMesh.meshFromHeightMap(heightmap,meshScaleVector);
+		GetComponent<MeshFilter>().mesh = myMesh;
 		#region caStart
 		cellRule<tile>[] rules; //= new cellRule<tile>[2]; //= new Dictionary<int,int[2]>(2);
 		rules = new cellRule<tile>[5]
@@ -165,7 +168,12 @@ public class CATest : MonoBehaviour
 			for(int y =0; y < size; y++)
 			{
 				cells[x,y] = new tile();
+				//print(x  + y  * size +" "+x +1 + y * size +" "+x + (y +1) * size +" "+x +1 + (y +1) * size);
 
+				//dealing with quads hence the 4 averaged values
+				//meshutility fucntion only uses shared verts meaning this will not work as either uv mapping will be off or the normal read will be off
+				cells[x,y].normal =  (myMesh.normals[x + y * size] + myMesh.normals[x + 1 + y * size]+myMesh.normals[x + (y +1) * size]+ myMesh.normals[x + 1 + (y +1) * size]) /4f;
+				cells[x,y].landHeight = ((myMesh.vertices[x + y * size] + myMesh.vertices[x + 1 + y * size]+myMesh.vertices[x + (y +1) * size]+ myMesh.vertices[x + 1 + (y +1) * size]) /4f).y;
 				if(heightmap[x,y] <= watterCutoff)
 				{
 					cells[x,y].zone = ZONE.OCEAN;
