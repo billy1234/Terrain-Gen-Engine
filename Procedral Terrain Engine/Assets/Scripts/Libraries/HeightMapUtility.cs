@@ -91,11 +91,11 @@ namespace heightMapUtility
 					float uvY =0;
 					if(x != 0)
 					{
-						uvX = (float)x/(float)width;
+						uvX = (float)x/((float)width-1);
 					}
 					if(y != 0)
 					{
-						uvY = (float)y/(float)height;
+						uvY = (float)y/((float)height-1);
 					}
 					uvs[vertIndex] = new Vector2(uvX,uvY);
 					if(x < width -1 && y < height -1)
