@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using NoiseExtention;
 public class CATest : MonoBehaviour 
 {
+	private int vertSize;
 	public int size;
-	private int QuadSize;
 	public Texture displayTexture;
 	cellularAutomotaTile CA;
 	const int maxNeighbours =4;
@@ -150,7 +150,8 @@ public class CATest : MonoBehaviour
 
 	void Start()
 	{
-		float[,] heightmap = perlinNoiseLayeredSimple.perlinNoise(size,size,seed,scale,octaves,persistance,lacunarity,Vector2.one);
+		vertSize = size+1;
+		float[,] heightmap = perlinNoiseLayeredSimple.perlinNoise(vertSize,vertSize,seed,scale,octaves,persistance,lacunarity,Vector2.one);
 		heightMapUtility.heightMapSmoothing.clampHeightMapAt(ref heightmap,watterCutoff);
 		heightMapUtility.heightMapSmoothing.clampEdgesCircular(ref heightmap,softCutoffRadius,hardCutoffRadius,watterCutoff);
 		Mesh myMesh = heightMapUtility.heightMapToMesh.meshFromHeightMap(heightmap,meshScaleVector);
@@ -162,19 +163,19 @@ public class CATest : MonoBehaviour
 			EmptyRules,DomesticRules,ComercialRules,IndustrialRules,EmptyRules
 		};
 		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL},{ZONE.OCEAN,(int)ZONE.OCEAN}};
-		QuadSize = size-1;
-		tile[,] cells = new tile[QuadSize ,QuadSize ];
-		displayTexture = new Texture2D(QuadSize ,QuadSize );
-		for(int x =0; x < QuadSize ; x++)
+
+		tile[,] cells = new tile[size ,size ];
+		displayTexture = new Texture2D(size ,size );
+		for(int x =0; x < size ; x++)
 		{
-			for(int y =0; y < QuadSize ; y++)
+			for(int y =0; y < size ; y++)
 			{
 				cells[x,y] = new tile();
 				//print(x  + y  * QuadSize  +" "+x +1 + y * size +" "+x + (y +1) * QuadSize  +" "+x +1 + (y +1) * size);
 
 				//dealing with the quads 4 points hence the 4 averaged values
-				cells[x,y].normal =  (myMesh.normals[x + y * QuadSize ] + myMesh.normals[x + 1 + y * size]+myMesh.normals[x + (y +1) * QuadSize ]+ myMesh.normals[x + 1 + (y +1) * size]) /4f;
-				cells[x,y].landHeight = ((myMesh.vertices[x + y * QuadSize ] + myMesh.vertices[x + 1 + y * size]+myMesh.vertices[x + (y +1) * QuadSize ]+ myMesh.vertices[x + 1 + (y +1) * size]) /4f).y;
+				cells[x,y].normal =  (myMesh.normals[x + y * size ] + myMesh.normals[x + 1 + y * vertSize]+myMesh.normals[x + (y +1) * size ]+ myMesh.normals[x + 1 + (y +1) * vertSize]) /4f;
+				cells[x,y].landHeight = ((myMesh.vertices[x + y * size ] + myMesh.vertices[x + 1 + y * vertSize]+myMesh.vertices[x + (y +1) * size ]+ myMesh.vertices[x + 1 + (y +1) * vertSize]) /4f).y;
 				if(heightmap[x,y] <= watterCutoff)
 				{
 					cells[x,y].zone = ZONE.OCEAN;
@@ -218,42 +219,44 @@ public class CATest : MonoBehaviour
 		{
 			yield return new WaitForSeconds(1f);
 			CA.passNESW();
-			Color[] pixels = new Color[QuadSize  * size];
-			for(int x =0; x < QuadSize ; x++)
+			Color[] pixels = new Color[size  * vertSize];
+			for(int x =0; x < size ; x++)
 			{
 
-				for(int y =0; y < QuadSize ; y++)
+				for(int y =0; y < size ; y++)
 				{
 
 					Color c = new Color();
 					if(CA.cells[x,y].zone == ZONE.EMPTY)
 					{
-						c = Color.white;
+						c= new Color(1,0,0,0);
 					}
 					else if( CA.cells[x,y].zone == ZONE.DOMESTIC)
 					{
-						c = Color.blue;
+						c = new Color(0,1,0,0);
 					}
 					else if(CA.cells[x,y].zone == ZONE.COMERCIAL)
 					{
-						c = Color.red;
+						c = new Color(0,0,1,0);
 					}
 					else if(CA.cells[x,y].zone == ZONE.INDUSTRIAL)
 					{
-						c= Color.green;
+						c= new Color(0,0,0,1);
 					}
 					if(CA.cells[x,y].zone != ZONE.OCEAN)
 					{
-						pixels[x + y * QuadSize ] = c * CA.cells[x,y].strength;
+						pixels[x + y * size ] = c * CA.cells[x,y].strength;
 					}
 					else
 					{
-						pixels[x + y * QuadSize] = Color.blue * Random.Range(0f,1f);
+						pixels[x + y * size] = Color.clear;
+						//pixels[x + y * size] = Color.blue * Random.Range(0f,1f);
 					}
 
 				}
 			}
-			displayTexture = heightMapUtility.heightMapToTexture.buildTextureFromPixels(pixels,QuadSize,QuadSize);
+			displayTexture = heightMapUtility.heightMapToTexture.buildTextureFromPixels(pixels,size,size);
+			displayTexture.filterMode = FilterMode.Trilinear;
 			gameObject.GetComponent<Renderer>().material.mainTexture = displayTexture;
 		}
 	}
