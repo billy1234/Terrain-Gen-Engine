@@ -1,18 +1,14 @@
 ﻿Shader "TerrainExtention/Terrian" {
 	Properties {
-		_MainTex ("Albedo (RGB)", 2D) = "black" {}
+		_MainTex ("SplatMap (RGB)", 2D) = "black" {}
 		_TexR("SplatR (RGB)", 2D) = "white" {}
 		_TexG("SplatG (RGB)", 2D) = "white" {}
 		_TexB("SplatB (RGB)", 2D) = "white" {}
 		_TexA("SplatA (RGB)", 2D) = "white" {}
-		_NoTileR("NoTileRed",Range 		(0, 0.000000000000001))=0
-		_NoTileG("NoTileGreen",Range 	(0, 0.000000000000001))=0
-		_NoTileB("NoTileBlue",Range 	(0, 0.000000000000001))=0
-		_NoTileA("NoTileAlpha",Range 	(0, 0.000000000000001))=0
-		
-		//[MaterialToggle]_NoTileG("TileGreen",Float)=0{}
-		//[MaterialToggle]_NoTileB("TileBlue",Float)=0{}
-		//[MaterialToggle]_NoTileA("TileAlpha",Float)=0{}
+		[MaterialToggle]_NoTileR("NoTileRed",Float)=0
+		[MaterialToggle]_NoTileG("NoTileGreen",Float)=0
+		[MaterialToggle]_NoTileB("NoTileBlue",Float)=0
+		[MaterialToggle]_NoTileA("NoTileAlpha",Float)=0
 		
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
@@ -40,49 +36,33 @@
 		half _Metallic;
 		fixed4 _Color;
 
+		
+		fixed4 getPixelFromSplat(float2 uv, sampler2D tex,bool mixUv)
+		{
+			if(mixUv)//mix uv coordinates
+			{
+				fixed4 value;
+				value.rgb = (tex2D(tex,uv).rgb + tex2D(tex,uv*-0.25).rgb) /2;
+				return value;
+			}
+			else
+			{
+				fixed4 value;
+				value.rgb = tex2D(tex,uv).rgb;
+				return value;
+			}
+		}
+
 		void surf (Input IN, inout SurfaceOutputStandard o) 
 		{
-			// Albedo comes from a texture tinted by color
 			float2 uv = float2(IN.worldPos.x,IN.worldPos.z) + IN.uv_MainTex;
 			fixed4 splat_control = tex2D (_MainTex, IN.uv_MainTex);
 			
 			fixed3 col;
-			if(_NoTileR != 0)
-			{
-			col  = splat_control.r * (tex2D (_TexR, uv).rgb *tex2D (_TexR, uv *-0.25).rgb * 4);		
-			}
-			else
-			{
-			col  = splat_control.r * tex2D (_TexR, uv).rgb;
-			}
-			
-		 	if(_NoTileG != 0)
-			{
-			col  += splat_control.g * (tex2D (_TexG, uv).rgb *tex2D (_TexG, uv *-0.25).rgb * 4);		
-			}
-			else
-			{
-			col  += splat_control.g * tex2D (_TexG, uv).rgb;
-			}
-			
-			if(_NoTileB != 0)
-			{
-			col  += splat_control.b * (tex2D (_TexB, uv).rgb *tex2D (_TexB, uv *-0.25).rgb * 4);		
-			}
-			else
-			{			
-			col  += splat_control.b * tex2D (_TexB, uv).rgb;
-			}
-			
-			if(_NoTileA != 0)
-			{
-			col  += splat_control.a * (tex2D (_TexA, uv).rgb *tex2D (_TexA, uv *-0.25).rgb * 4);		
-			}
-			else
-			{
-			col  += splat_control.a * tex2D (_TexA, uv).rgb;
-			}
-			//col = col / maxSplat;
+			col = splat_control.r * getPixelFromSplat(uv,_TexR,_NoTileR !=0);
+			col += splat_control.g * getPixelFromSplat(uv,_TexG,_NoTileG !=0);
+			col += splat_control.b * getPixelFromSplat(uv,_TexB,_NoTileB !=0);
+			col += splat_control.a * getPixelFromSplat(uv,_TexA,_NoTileA !=0);
 			o.Albedo = col.rgb;
 			// Metallic and smoothness come from slider variables
 			o.Metallic = _Metallic;
