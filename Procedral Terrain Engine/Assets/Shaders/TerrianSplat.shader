@@ -1,10 +1,10 @@
-﻿Shader "TerrainExtention/Terrian" {
+﻿Shader "TerrainExtention/TerrianSplat" {
 	Properties {
-		_MainTex ("SplatMap (RGB)", 2D) = "black" {}
-		_TexR("SplatR (RGB)", 2D) = "white" {}
-		_TexG("SplatG (RGB)", 2D) = "white" {}
-		_TexB("SplatB (RGB)", 2D) = "white" {}
-		_TexA("SplatA (RGB)", 2D) = "white" {}
+		_MainTex ("SplatMap (RGBA)", 2D) = "red" {}
+		_TexR("SplatChannelR", 2D) = "white" {}
+		_TexG("SplatChannelG", 2D) = "white" {}
+		_TexB("SplatChannelB", 2D) = "white" {}
+		_TexA("SplatChannelA)", 2D) = "white" {}
 		[MaterialToggle]_NoTileR("NoTileRed",Float)=0
 		[MaterialToggle]_NoTileG("NoTileGreen",Float)=0
 		[MaterialToggle]_NoTileB("NoTileBlue",Float)=0

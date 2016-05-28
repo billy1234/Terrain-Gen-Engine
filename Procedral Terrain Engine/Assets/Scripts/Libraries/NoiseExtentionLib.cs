@@ -149,4 +149,138 @@ namespace NoiseExtention
 			return perlinNoise(mapWidth, mapHeight, seed, scale, octaves, peristance, lacunarity, offset,false);
 		}
 	}
+	
+	public class hillNoise
+	{
+		public hillNoise(int hillCount,float maxHillSize,float minHillSize,float hillStrength)
+		{
+			this.hills = new hill[hillCount];
+			this.hillStrength = hillStrength;
+			for(int i=0; i <hillCount; i++)
+			{
+				this.hills[i] = new hill(maxHillSize,minHillSize);
+			}
+		}
+		hill[] hills;
+		float hillStrength =0.3f;
+		public float getHeightAt(float x, float y)
+		{
+			float height =0;
+			foreach(hill h in hills)
+			{
+				height += h.myInfuenceAt(x,y) * hillStrength;//addative as of now
+			}
+		return height;
+		}
+	#region InternalDataStype
+		private class hill
+		{
+			
+			public hill(float maxWidth,float minWidth)
+			{
+				this.hillPosition = new Vector2(Random.Range(0f,1f),Random.Range(0f,1f));
+				this.hillSize = new Vector2(Random.Range(minWidth,maxWidth),Random.Range(minWidth,maxWidth));
+				
+			}
+			
+			
+			//both vectors should be normalized between 0-1
+			public Vector2 hillPosition;
+			public Vector2 hillSize{set{
+										_hillSize = value;
+										hillSizeSquared = new Vector2(Mathf.Sqrt(value.x),Mathf.Sqrt(value.y));
+										}} //rather than constaly calculate square store it once it is set
+			private Vector2 _hillSize;
+			private Vector2 hillSizeSquared;
+			
+			
+			
+			public float myInfuenceAt(float x, float y)
+			{
+				Vector2 hillPosition = this.hillPosition;
+				float z = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
+
+
+
+				if(z < 0)
+				{
+					z=0;
+				}
+				/*
+				 * //tillable noise atempt
+				float i =-1;
+				if(hillPosition.x + _hillSize.x > 1 && z < 0)
+				{
+					Debug.Log("fired");
+					hillPosition.x -=1;
+					i = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
+					if(x >0)
+					{
+						z+= i;
+					}
+					hillPosition.x +=1;
+				}
+				if(hillPosition.x - _hillSize.x < 0 && z < 0)
+				{
+					hillPosition.x +=1;
+					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
+					if(x >0)
+					{
+						z+= i;
+					}
+					hillPosition.x -=1;
+				}
+				if(hillPosition.y + _hillSize.y > 1 && z < 0)
+				{
+					hillPosition.y -=1;
+					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
+					if(x >0)
+					{
+						z+= i;
+					}
+					hillPosition.y +=1;
+				}
+				if(hillPosition.y - _hillSize.y < 0 && z < 0)
+				{
+					hillPosition.y +=1;
+					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
+					if(x >0)
+					{
+						z+= i;
+					}
+					hillPosition.y -=1;
+				}
+				*/
+				return z;
+			}
+
+			private float ovalHeightFormula(Vector2 hillsizeSquared,Vector2 hillPosition,float x, float y)
+			{
+				return (hillSizeSquared.x - x1MinusY1Squared(x,hillPosition.x)) +    (hillSizeSquared.y - x1MinusY1Squared(y,hillPosition.y ));
+			}
+			
+			private float x1MinusY1Squared(float x, float y)
+			{
+				return Mathf.Pow(x-y,2f);
+			}
+		}
+	#endregion
+
+	public static Texture2D testText(int hills, float maxHillSize,float minHillSize,int size,float hillStrength)
+	{
+		hillNoise d = new hillNoise(hills,maxHillSize,minHillSize,hillStrength);
+		Color[] pixels = new Color[size * size];
+		for(int y =0; y < size; y++)
+		{
+			for(int x=0; x < size; x++)
+			{
+				float height = d.getHeightAt((float)x/(float)size,(float)y/(float)size);
+				pixels[x + y * size] = new Color(height,height,height);
+			}
+		}
+		return heightMapUtility.heightMapToTexture.buildTextureFromPixels(pixels,size,size);
+
+	}
+
+}
 }

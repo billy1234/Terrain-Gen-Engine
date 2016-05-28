@@ -164,7 +164,7 @@ public class CATest : MonoBehaviour
 		};
 		Dictionary<ZONE,int> ruleMatrix = new Dictionary<ZONE, int>(){{ZONE.EMPTY,(int)ZONE.EMPTY},{ZONE.DOMESTIC,(int)ZONE.DOMESTIC},{ZONE.COMERCIAL,(int)ZONE.COMERCIAL},{ZONE.INDUSTRIAL,(int)ZONE.INDUSTRIAL},{ZONE.OCEAN,(int)ZONE.OCEAN}};
 
-		tile[,] cells = new tile[size ,size ];
+		tile[,] cells = new tile[size,size];
 		displayTexture = new Texture2D(size ,size );
 		for(int x =0; x < size ; x++)
 		{
@@ -219,7 +219,7 @@ public class CATest : MonoBehaviour
 		{
 			yield return new WaitForSeconds(1f);
 			CA.passNESW();
-			Color[] pixels = new Color[size  * vertSize];
+			Color[] pixels = new Color[size * vertSize];
 			for(int x =0; x < size ; x++)
 			{
 
