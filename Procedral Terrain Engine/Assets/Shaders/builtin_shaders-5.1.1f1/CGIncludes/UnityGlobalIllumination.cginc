@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'UNITY_PASS_TEXCUBE(unity_SpecCube1)' with 'UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1,unity_SpecCube0)'
+
 #ifndef UNITY_GLOBAL_ILLUMINATION_INCLUDED
 #define UNITY_GLOBAL_ILLUMINATION_INCLUDED
 
@@ -177,7 +179,7 @@ inline UnityGI UnityGlobalIllumination (UnityGIInput data, half occlusion, half 
 					half3 worldNormal1 = worldNormal;
 				#endif
 
-				half3 env1 = Unity_GlossyEnvironment (UNITY_PASS_TEXCUBE(unity_SpecCube1), data.probeHDR[1], worldNormal1, 1-oneMinusRoughness);
+				half3 env1 = Unity_GlossyEnvironment (UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1,unity_SpecCube0), data.probeHDR[1], worldNormal1, 1-oneMinusRoughness);
 				o_gi.indirect.specular = lerp(env1, env0, blendLerp);
 			}
 			else

@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced '_CameraToWorld' with 'unity_CameraToWorld'
+
 Shader "Hidden/Internal-DeferredReflections" {
 Properties {
 	_SrcBlend ("", Float) = 1
@@ -48,7 +50,7 @@ half4 frag (unity_v2f_deferred i) : SV_Target
 	normalWorld = normalize(normalWorld);
 
 	half3 specColor = gbuffer1.rgb;
-	float3 worldPos = mul (_CameraToWorld, vertextPosition).xyz;
+	float3 worldPos = mul (unity_CameraToWorld, vertextPosition).xyz;
 	float3 eyeVec = normalize(worldPos - _WorldSpaceCameraPos);
 	half oneMinusReflectivity = 1 - SpecularStrength(specColor.rgb);
 	

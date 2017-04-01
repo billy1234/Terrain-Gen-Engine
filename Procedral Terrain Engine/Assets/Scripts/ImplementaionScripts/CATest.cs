@@ -245,18 +245,18 @@ public class CATest : MonoBehaviour
 					}
 					if(CA.cells[x,y].zone != ZONE.OCEAN)
 					{
-						pixels[x + y * size ] = c * CA.cells[x,y].strength;
+                        pixels[x + y * size] = c; //* CA.cells[x,y].strength;
 					}
 					else
 					{
-						pixels[x + y * size] = Color.clear;
+						pixels[x + y * size] = Color.red;
 						//pixels[x + y * size] = Color.blue * Random.Range(0f,1f);
 					}
 
 				}
 			}
 			displayTexture = heightMapUtility.heightMapToTexture.buildTextureFromPixels(pixels,size,size);
-			displayTexture.filterMode = FilterMode.Trilinear;
+			displayTexture.filterMode = FilterMode.Bilinear;
 			gameObject.GetComponent<Renderer>().material.mainTexture = displayTexture;
 		}
 	}
