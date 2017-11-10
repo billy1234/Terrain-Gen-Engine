@@ -1,14 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-/*
-[System.Serializable]
-public struct NoiseOctaveInfo
-{
-	public float Lacunarity;
-	public float Persistance;
 
-}
-*/
 
 namespace NoiseExtention
 {
@@ -200,57 +192,10 @@ namespace NoiseExtention
 				Vector2 hillPosition = this.hillPosition;
 				float z = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
 
-
-
 				if(z < 0)
 				{
 					z=0;
-				}
-				/*
-				 * //tillable noise atempt
-				float i =-1;
-				if(hillPosition.x + _hillSize.x > 1 && z < 0)
-				{
-					Debug.Log("fired");
-					hillPosition.x -=1;
-					i = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
-					if(x >0)
-					{
-						z+= i;
-					}
-					hillPosition.x +=1;
-				}
-				if(hillPosition.x - _hillSize.x < 0 && z < 0)
-				{
-					hillPosition.x +=1;
-					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
-					if(x >0)
-					{
-						z+= i;
-					}
-					hillPosition.x -=1;
-				}
-				if(hillPosition.y + _hillSize.y > 1 && z < 0)
-				{
-					hillPosition.y -=1;
-					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
-					if(x >0)
-					{
-						z+= i;
-					}
-					hillPosition.y +=1;
-				}
-				if(hillPosition.y - _hillSize.y < 0 && z < 0)
-				{
-					hillPosition.y +=1;
-					x = ovalHeightFormula(hillSizeSquared,hillPosition,x,y);
-					if(x >0)
-					{
-						z+= i;
-					}
-					hillPosition.y -=1;
-				}
-				*/
+				}				
 				return z;
 			}
 
@@ -283,4 +228,5 @@ namespace NoiseExtention
 	}
 
 }
+
 }
