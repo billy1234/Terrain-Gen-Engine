@@ -9,6 +9,7 @@
 *.pidb
 *.booproj
 *.metta
+*.bin
 Library/*
 Temp/*
 Build/*
