@@ -66,6 +66,7 @@ namespace heightMapUtility
 	/// </summary>
 	public static class heightMapToMesh
 	{
+
 		/// <summary>
 		/// will turn this float array into a plane with its y offest by the contents of the array.
 		/// </summary>
@@ -124,6 +125,7 @@ namespace heightMapUtility
 		{
 			return meshFromHeightMap(heightMap,new Vector3(1f,ySscaleFactor,1f));
 		}
+
 		/// <summary>
 		/// will turn this float array into a plane with its y offest by the contents of the array.
 		/// </summary>
@@ -132,6 +134,7 @@ namespace heightMapUtility
 		{
 			return meshFromHeightMap(heightMap,Vector3.one);
 		}
+
 		private static void addTri(ref int[] tris,ref int triIndex, int a,int b,int c)
 		{
 			tris[triIndex    ] = a;

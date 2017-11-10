@@ -30,7 +30,6 @@ namespace gridLib
 		{
 			return getNeigbors(ref array,cell,new direction[8]{direction.UP,direction.UP_RIGHT,direction.RIGHT,direction.DOWN_RIGHT,direction.DOWN,direction.DOWN_LEFT,direction.LEFT,direction.UP_LEFT});
 		}
-		
 		static public Vector2[]  getNeigbors<T>(ref T[,] array, Vector2 cell,direction[] sidesToCheck) //no flattened array implemenation as of now
 		{
 			Vector2[] cells = new Vector2[sidesToCheck.Length];
@@ -74,4 +73,62 @@ namespace gridLib
 			return finalCells;
 		}
 	}
+
+    public static class muildDimUtill<T>
+    {
+        public static bool inBounds(T[] items,params int[] index)
+        {
+            int dimentions = items.Rank;
+            if (index.Length != dimentions ) { //if the amount of indexes dont match the dimentions throw an error
+                System.Console.Error.WriteLine(index +" dosnt match "+items.ToString());
+                return false;
+            }
+
+            for (int i = 0; i < dimentions; i++)
+            {
+                if (index[i] < 0 || i >= index[items.GetLength(i)]) //
+                {
+                    return false;
+                }
+
+
+            }
+
+            return true;
+            
+        }
+
+        public static bool tryDo(ref T[] items, action passAction, params int[] index)
+        {
+            if (inBounds(items, index))
+            {
+                passAction((T)(items.GetValue(index)));
+                return true;
+            }
+            return false;
+        }
+
+        public static bool tryDo(ref T[] items, action passAction,action failAction,evaluateItem evaluation, params int[] index)
+        {
+            if (inBounds(items,index)) //if the item out of bounds dont try do anything to it
+            {
+                T item = (T)(items.GetValue(index));
+                if (evaluation(item))
+                {
+                    passAction(item); //if it passes do the pass action to it
+                    return true;
+                }
+                else
+                {
+                    failAction(item); //if it fails do the fail action to it
+                    return false;
+                }
+            }
+
+            return false;
+        }
+                
+        public delegate bool evaluateItem(T item);
+        public delegate void action(T item);
+    }
 }

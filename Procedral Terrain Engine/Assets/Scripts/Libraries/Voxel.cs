@@ -70,7 +70,6 @@ namespace Voxel {
             doToAllCells((ref voxelCell v,int x,int y,int z) => { v = new voxelCell(this.x + x,this.y + y,this.z + z); });
         }
 
-
         /// <summary>
         /// will run the provided "do cell on all cells"
         /// </summary>
@@ -110,7 +109,11 @@ namespace Voxel {
             }
         }
 
+        public static Mesh buildMesh() {
+            Mesh m = new Mesh();
 
+            return m;
+        }
     }
 
     /// <summary>
