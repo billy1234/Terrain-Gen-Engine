@@ -10,9 +10,10 @@
 *.booproj
 *.metta
 *.bin
-*Library/*
-*Temp/*
-*Build/*
+GraphicsSettings.*
+*/Library/*
+*/Temp/*
+*/Build/*
 
 
 *.pidb.meta
