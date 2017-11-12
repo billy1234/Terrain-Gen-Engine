@@ -333,6 +333,7 @@ namespace heightMapUtility
 		public Vector2 tillingB;
 		public Vector2 tillingA;
 	}
+
 	public static class splatMap
 	{
 		public static  Texture2D splatMapTexure2Drgb(splatMapInput input)
