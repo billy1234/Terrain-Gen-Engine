@@ -8,13 +8,19 @@
 *.userprefs
 *.pidb
 *.booproj
-*.metta
+*.meta
 *.bin
+
+Library/
+ProjectSettings/
+Build/
+Temp/
+
 GraphicsSettings.*
-*/Library/*
-*/Temp/*
-*/Build/*
 
 *.pidb.meta
 
 sysinfo.txt
+
+
+
